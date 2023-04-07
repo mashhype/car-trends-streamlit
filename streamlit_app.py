@@ -18,33 +18,33 @@ logger = logging.getLogger(__name__)
 st.set_page_config(layout="centered")
 
 # # Initialize connection.
-# # Uses st.experimental_singleton to only run once.
-# @st.cache_resource
-# def init_connection():
-#     return snowflake.connector.connect(**st.secrets["snowflake"], client_session_keep_alive=True)
+# Uses st.experimental_singleton to only run once.
+@st.cache_resource
+def init_connection():
+    return snowflake.connector.connect(**st.secrets["snowflake"], client_session_keep_alive=True)
 
-# logger.info("Starting logging...")
-# conn = init_connection()
+logger.info("Starting logging...")
+conn = init_connection()
 
 
 
 
 # # Perform query.
 # # Uses st.experimental_memo to only rerun when the query changes or after 10 min.
-# @st.cache_data(ttl=600)
-# def run_query(query):
-#     with conn.cursor() as cur:
-#         cur.execute(query)
-#         return cur.fetch_pandas_all()
+@st.cache_data(ttl=600)
+def run_query(query):
+    with conn.cursor() as cur:
+        cur.execute(query)
+        return cur.fetch_pandas_all()
 
 
-# logger.info("About to run query...")
-# df = run_query("select * from porsche_911 limit 100;")
-# logger.info("Query has been run...")
+logger.info("About to run query...")
+df = run_query("select * from porsche_911 limit 100;")
+logger.info("Query has been run...")
 
 
 ## read in csv dataset
-df = pd.read_csv('porsche_911_sample.csv')
+# df = pd.read_csv('porsche_911_sample.csv')
 
 
 ## summarize data and remove duplicates
