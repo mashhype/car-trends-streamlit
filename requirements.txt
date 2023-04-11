@@ -4,5 +4,6 @@ numpy
 seaborn
 matplotlib
 plotly
+snowflake-connector-python==2.7.12
 ipywidgets
 statsmodels
