@@ -7,4 +7,4 @@ plotly
 snowflake-connector-python
 ipywidgets
 statsmodels
-pyarrow==10.1.0
+pyarrow==10.0.1
