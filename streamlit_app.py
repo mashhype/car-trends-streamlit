@@ -39,7 +39,7 @@ def run_query(query):
 
 
 logger.info("About to run query...")
-df = run_query("select * from porsche_911 limit 10;")
+df = run_query("select * from porsche_911 limit 1000;")
 logger.info("Query has been run...")
 
 
