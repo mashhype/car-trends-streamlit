@@ -4,6 +4,5 @@ numpy
 seaborn
 matplotlib
 plotly
-snowflake-connector-python
 ipywidgets
 statsmodels
