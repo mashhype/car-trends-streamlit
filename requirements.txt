@@ -4,7 +4,7 @@ numpy
 seaborn
 matplotlib
 plotly
-snowflake-connector-python==3.0.1
+snowflake-connector-python
 ipywidgets
 statsmodels
 pyarrow==10.1.0
