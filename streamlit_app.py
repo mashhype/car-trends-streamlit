@@ -88,7 +88,8 @@ min_year = df.SCRAPED_AT_DATE.min()
 max_year = df.SCRAPED_AT_DATE.max()
 
 st.markdown('In the scatterplot below, each dot represents a car that was listed by a US dealer between ' + str(min_year) + ' and ' + str(max_year) + ' . There are a total of ' + str(df_temp.TRIM.count()) + ' samples in the plot below. The trend line (i.e. line of best fit) gives us an idea of the relationship between **PRICE** and **MILES** for the different trim levels shown.')
-
+st.markdown('##')
+st.markdown('##')
 
 fig = px.scatter(df_temp, 
                  x="MILES", 
