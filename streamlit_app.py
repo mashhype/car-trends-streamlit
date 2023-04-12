@@ -1,85 +1,49 @@
 # streamlit_app.py
-import logging
+
 import pandas as pd
 import numpy as np
 import snowflake.connector
 import streamlit as st
-import statsmodels
 import ipywidgets
-#print(ipywidgets.__version__)
+print(ipywidgets.__version__)
 import plotly.graph_objects as go
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import plotly.express as px
 from PIL import Image
 import car_functions as cf
 
-logger = logging.getLogger(__name__)
-
 st.set_page_config(layout="centered")
 
-# # Initialize connection.
+# Initialize connection.
 # Uses st.experimental_singleton to only run once.
 @st.cache_resource
 def init_connection():
-    return snowflake.connector.connect(**st.secrets["snowflake"], client_session_keep_alive=True)
+    return snowflake.connector.connect(**st.secrets["snowflake"])
 
-logger.info("Starting logging...")
 conn = init_connection()
 
-
-
-
-# # Perform query.
-# # Uses st.experimental_memo to only rerun when the query changes or after 10 min.
+# Perform query.
+# Uses st.experimental_memo to only rerun when the query changes or after 10 min.
 @st.cache_data(ttl=600)
 def run_query(query):
     with conn.cursor() as cur:
         cur.execute(query)
         return cur.fetch_pandas_all()
 
-
-logger.info("About to run query...")
-df = run_query("select * from porsche_911 limit 1000;")
-logger.info("Query has been run...")
-
-
-## read in csv dataset
-# df = pd.read_csv('porsche_911_sample.csv')
-
-
-## summarize data and remove duplicates
-df_grp = df.groupby(['VIN', 'YEAR', 'MODEL', 'TRIM', 'TRANSMISSION']).agg({'SCRAPED_AT_DATE':'max',
-                                                                           'MILES':'max',
-                                                                           'PRICE':'mean'}).reset_index().sort_values('VIN')
-
-
-# with st.form("my_form"):
-#    st.write("Inside the form")
-#    slider_val = st.slider("Form slider")
-#    checkbox_val = st.checkbox("Form checkbox")
-
-#    # Every form must have a submit button.
-#    submitted = st.form_submit_button("Submit")
-#    if submitted:
-#        st.write("slider", slider_val, "checkbox", checkbox_val)
-
-# st.write("Outside the form")
+df = run_query("SELECT VIN, YEAR, MODEL, TRIM, TRANSMISSION, MAX(SCRAPED_AT_DATE) SCRAPED_AT_DATE, MAX(MILES) MILES, AVG(PRICE) PRICE FROM PORSCHE_911 WHERE SCRAPED_AT_DATE BETWEEN DATEADD(year, -1, GETDATE()) AND GETDATE() GROUP BY VIN, YEAR, MODEL, TRIM, TRANSMISSION ORDER BY SCRAPED_AT_DATE;")
 
 
 ## consolidate trim labels
-df_grp['TRIM_CLEAN'] = np.where(df_grp['TRIM'] == 'S', 'Carrera S',
-                       np.where(df_grp['TRIM'].isin(['Base', 'CARRERA']), 'Carrera',
-                       np.where(df_grp['TRIM'] == 'GTS', 'Carrera GTS', df_grp['TRIM'])))
+df['TRIM'] = np.where(df['TRIM'] == 'S', 'Carrera S', np.where(df['TRIM'].isin(['Base', 'CARRERA']), 'Carrera', np.where(df['TRIM'] == 'GTS', 'Carrera GTS', df['TRIM'])))
 
 
 fig = go.FigureWidget()
-fig = px.bar(x=df_grp.TRIM_CLEAN.value_counts().index.tolist(), 
-             y=df_grp.TRIM_CLEAN.value_counts(normalize=True).tolist(), 
+fig = px.bar(x=df.TRIM.value_counts().index.tolist(), 
+             y=df.TRIM.value_counts(normalize=True).tolist(), 
              width=1400, height=800)
 
 fig.layout.title = '% of Listings By Trim Level for Porsche 911 (2012 - 2022)'
 fig.layout.yaxis.tickformat = ',.0%'
-
 
 st.title('Welcome To CarTrends.ai')
 
@@ -88,15 +52,18 @@ st.image(image, caption='911 By Generation')
 
 st.subheader('Tell us what trim you are interested and we will share some insights with you..')
 
+st.markdown('Select a year:')
+options_yr = st.selectbox('', [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019])
+
 st.markdown('Select a trim:')
-options = st.selectbox('', ['Carrera', 'Carrera S', 'Carrera GTS', 'Turbo', 'Turbo S', 'GT3'])
+options_trim = st.selectbox('', ['Carrera', 'Carrera S', 'Carrera GTS', 'Turbo', 'Turbo S', 'GT3'])
 
 st.write('You selected:')
 # s = ''
 # for i in options:
 #     s += "- " + i + "\n"
 
-st.markdown(options)
+st.markdown(str(options_yr) + " " + options_trim)
 st.markdown('##')
 
 st.markdown('How many years do you plan to own the car:')
@@ -112,31 +79,34 @@ miles_driven = st.slider('', 2000, 25000, 3000, step=1000)
 st.markdown('##')
 
 ## Scatterplot with Trendline (Polynomial regression)
-df_temp = df_grp[(df_grp.TRIM_CLEAN == options) & 
-                 (df_grp.MILES.between(1, 100000)) & 
-                 (df_grp.YEAR.between(2012, 2019))][['TRIM_CLEAN', 'MILES', 'PRICE']] #.sample(frac=.08)
+df_temp = df[(df.TRIM == options_trim) & 
+                 (df.MILES.between(1, 100000)) & 
+                 (df.YEAR == options_yr)][['TRIM', 'MILES', 'PRICE']]
 
 st.markdown('##')
-st.markdown('In the scatterplot below, each dot represents a car that was listed by a US dealer between [] and []. The trend line (i.e. line of best fit) gives us an idea of the relationship between **PRICE** and **MILES** for the different trim levels shown.')
+min_year = df.SCRAPED_AT_DATE.min()
+max_year = df.SCRAPED_AT_DATE.max()
+
+st.markdown('In the scatterplot below, each dot represents a car that was listed by a US dealer between ' + str(min_year) + ' and ' + str(max_year) + ' . There are a total of ' + str(df_temp.TRIM.count()) + ' samples in the plot below. The trend line (i.e. line of best fit) gives us an idea of the relationship between **PRICE** and **MILES** for the different trim levels shown.')
 
 
 fig = px.scatter(df_temp, 
                  x="MILES", 
                  y="PRICE", 
-                 color="TRIM_CLEAN", 
+                 color="TRIM", 
                  template='plotly', 
-                 width=1000, height=800, 
+                 width=800, height=600, 
                  trendline="ols", 
                  trendline_options=dict(log_x=True))
 
-fig.layout.title = 'Scatterplot With Trendline By Trim Level for Porsche 911'
+fig.layout.title = 'Scatterplot With Trendline By Trim Level for a ' + str(options_yr) + ' Porsche 911'
 # Plot!
 st.plotly_chart(fig, use_container_width=False)
 
 
 ### Apply the polynomial regression to show cost per $1k miles:
 results = px.get_trendline_results(fig)
-coeff = results.query(f"TRIM_CLEAN == '{options}'").px_fit_results.iloc[0].params
+coeff = results.query(f"TRIM == '{options_trim}'").px_fit_results.iloc[0].params
 
 ## get the first third and third 10k miles depreciation cost
 first, third = cf.get_poly_depreciation(coeff, ownership_term, miles_driven)
@@ -144,11 +114,7 @@ first, third = cf.get_poly_depreciation(coeff, ownership_term, miles_driven)
 first = int(first)
 third = int(third)
 
-# st.write(ownership_term)
-# st.write(miles_driven)
-# st.write(total_ownership_miles)
-
-st.write(f'Assuming you drive the car for a **total of {ownership_term * miles_driven} miles**, a 991 generation (2012 - 2019) **{options}** will depreciate an average of **{first}** dollars if purchased with 1K miles, while it will only lose an average of **{third}** dollars if purchased around 30k miles.')
+st.write(f'Assuming you drive the car for a **total of {ownership_term * miles_driven} miles**, a 991 generation **{str(options_yr) } {options_trim}** will depreciate an average of **{first}** dollars if purchased with 1K miles, while it will only lose an average of **{third}** dollars if purchased around 30k miles.')
 
 # Another scatter plot but with bubbles
 # df_temp = df_grp.groupby(['YEAR', 'TRIM_CLEAN']).agg({'VIN': 'count', 
