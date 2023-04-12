@@ -102,7 +102,7 @@ fig = px.scatter(df_temp,
 
 fig.layout.title = 'Scatterplot With Trendline By Trim Level for a ' + str(options_yr) + ' Porsche 911'
 # Plot!
-st.plotly_chart(fig, use_container_width=False)
+st.plotly_chart(fig, use_container_width=True)
 
 
 ### Apply the polynomial regression to show cost per $1k miles:
