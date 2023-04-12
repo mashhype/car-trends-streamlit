@@ -95,7 +95,7 @@ fig = px.scatter(df_temp,
                  y="PRICE", 
                  color="TRIM", 
                  template='plotly', 
-                 width=400, height=400, 
+                 width=600, height=400, 
                  trendline="ols", 
                  trendline_options=dict(log_x=True))
 
