@@ -37,13 +37,13 @@ df = run_query("SELECT VIN, YEAR, MODEL, TRIM, TRANSMISSION, MAX(SCRAPED_AT_DATE
 df['TRIM'] = np.where(df['TRIM'] == 'S', 'Carrera S', np.where(df['TRIM'].isin(['Base', 'CARRERA']), 'Carrera', np.where(df['TRIM'] == 'GTS', 'Carrera GTS', df['TRIM'])))
 
 
-fig = go.FigureWidget()
-fig = px.bar(x=df.TRIM.value_counts().index.tolist(), 
-             y=df.TRIM.value_counts(normalize=True).tolist(), 
-             width=1400, height=800)
+#fig = go.FigureWidget()
+#fig = px.bar(x=df.TRIM.value_counts().index.tolist(), 
+#             y=df.TRIM.value_counts(normalize=True).tolist(), 
+#             width=1400, height=800)
 
-fig.layout.title = '% of Listings By Trim Level for Porsche 911 (2012 - 2022)'
-fig.layout.yaxis.tickformat = ',.0%'
+#fig.layout.title = '% of Listings By Trim Level for Porsche 911 (2012 - 2022)'
+#fig.layout.yaxis.tickformat = ',.0%'
 
 st.title('Welcome To CarTrends.ai')
 
