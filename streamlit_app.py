@@ -23,7 +23,8 @@ def init_connection():
 conn = init_connection()
 
 # Perform query.
-# Uses st.experimental_memo to only rerun when the query changes or after 10 min.
+# Cache data permanently unless the query changes!
+# i.e. lower $$ for data requests from snowflake!
 @st.cache_data(persist="disk")
 def run_query(query):
     with conn.cursor() as cur:
