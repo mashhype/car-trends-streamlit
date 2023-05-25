@@ -5,7 +5,6 @@ import numpy as np
 import snowflake.connector
 import streamlit as st
 import ipywidgets
-print(ipywidgets.__version__)
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import plotly.express as px
