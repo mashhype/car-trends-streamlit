@@ -61,7 +61,7 @@ options_trim = st.multiselect('', ['Carrera', 'Carrera S', 'Carrera GTS', 'Turbo
 
 st.write('You selected:')
 s = ''
-for i in options:
+for i in options_trim:
     s += "- " + i + "\n"
 
 st.markdown(str(options_yr) + " " + options_trim)
