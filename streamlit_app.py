@@ -57,12 +57,12 @@ st.markdown('Select a year:')
 options_yr = st.selectbox('', [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019])
 
 st.markdown('Select a trim:')
-options_trim = st.selectbox('', ['Carrera', 'Carrera S', 'Carrera GTS', 'Turbo', 'Turbo S', 'GT3'])
+options_trim = st.multiselect('', ['Carrera', 'Carrera S', 'Carrera GTS', 'Turbo', 'Turbo S', 'GT3'])
 
 st.write('You selected:')
-# s = ''
-# for i in options:
-#     s += "- " + i + "\n"
+s = ''
+for i in options:
+    s += "- " + i + "\n"
 
 st.markdown(str(options_yr) + " " + options_trim)
 st.markdown('##')
