@@ -15,8 +15,8 @@ import car_functions as cf
 st.set_page_config(layout="centered")
 
 # Initialize connection.
-# Uses st.experimental_singleton to only run once.
-## @st.cache_resource
+# Uses st.cache_resource to only run once.
+@st.cache_resource()
 def init_connection():
     return snowflake.connector.connect(**st.secrets["snowflake"])
 
