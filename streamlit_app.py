@@ -53,7 +53,7 @@ st.image(image, caption='911 By Generation')
 st.subheader('Tell us what trim you are interested and we will share some insights with you..')
 
 st.markdown('Select a year:')
-options_yr = st.selectbox('', [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019])
+options_yr = st.selectbox('year', [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019], label_visibility="hidden")
 
 st.markdown('Select a trim:')
 options_trim = st.selectbox('', ['Carrera', 'Carrera S', 'Carrera GTS', 'Turbo', 'Turbo S', 'GT3'])
