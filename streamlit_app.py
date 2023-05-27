@@ -91,6 +91,10 @@ st.markdown('In the scatterplot below, each dot represents a car that was listed
 st.markdown('##')
 st.markdown('##')
 
+## Create a scatter plot using a dataframe named "df_temp"
+## I can define the template, size, and even add a trendline
+## which I will use in a function later to get the depreciation
+## cost per X thousand miles
 fig = px.scatter(df_temp, 
                  x="MILES", 
                  y="PRICE", 
