@@ -11,7 +11,7 @@ import plotly.express as px
 from PIL import Image
 import car_functions as cf
 
-st.set_page_config(layout="centered")
+st.set_page_config(layout="wide")
 
 # Initialize connection.
 # Uses st.cache_resource to only run once.
